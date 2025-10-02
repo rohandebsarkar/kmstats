@@ -64,8 +64,6 @@ try:
     print(f"Found and following link: {absolute_link_url}")
 
     # Get the data associated with the link
-    data_response = \
-      requests.get(absolute_link_url, proxies=proxies, timeout=10, verify=False)
     loader = WebBaseLoader(absolute_link_url)
     # Set multiple requests parameters at once
     loader.requests_kwargs = {
