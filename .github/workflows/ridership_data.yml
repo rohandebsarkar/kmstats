@@ -8,6 +8,8 @@ on:
 jobs:
   collect-data:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # Grants write access to the repository contents
     
     steps:
     - name: Check out repository
