@@ -1,0 +1,63 @@
+name: Metro Ridership Data Collection
+
+on:
+  schedule:
+    - cron: '22 00 * * *' # 17:00 UTC / 22:00 IST
+  workflow_dispatch:  # Allows manual trigger for testing
+
+jobs:
+  collect-data:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+    
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        # Install dependencies from requirements.txt
+        if [ -f requirements.txt ]; then 
+          pip install -r requirements.txt
+        fi
+    
+    - name: Run ridership data collection
+      run: |
+        # Add debugging information
+        echo "Python version:"
+        python --version
+        echo "Installed packages:"
+        pip list
+        
+        # Run with timeout and error handling
+        echo "Starting ridership data collection..."
+        timeout 300s python3 get_data.py || {
+          echo "Error: ridership.py failed or timed out after 5 minutes"
+        }
+      
+    - name: Configure Git
+      run: |
+        git config --global user.name 'GitHub Actions Bot'
+        git config --global user.email 'actions@github.com'
+        
+    - name: Commit and push changes
+      run: |
+        git add ridership.csv
+        # Only commit if there are changes
+        git diff --quiet && git diff --staged --quiet || git commit -m "daily dataset append [Actions]"
+        git push
