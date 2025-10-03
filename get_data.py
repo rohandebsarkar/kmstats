@@ -9,14 +9,10 @@ from langchain_community.document_loaders import WebBaseLoader
 from langchain_core.prompts import ChatPromptTemplate
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
-os.environ["ANTHROPIC_API_KEY"] = \
-  "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"
-
 # Suppress the InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
-proxy_address = \
-  'brd-customer-hl_9bf54d6c-zone-residential_proxy1:snrfins92iwg@brd.superproxy.io:33335'
+proxy_address = os.environ["PROXY_ADDRESS"]
 
 proxies = {
     'http': proxy_address,
@@ -38,7 +34,6 @@ def is_valid_date_format(date_string):
 try:
     # The 'requests' library will route this request through the specified proxy
     response = requests.get(url_to_access, proxies=proxies, timeout=10, verify=False)
-    print(f"Successfully accessed site with status code: {response.status_code}")
 
     soup = BeautifulSoup(response.content, 'html.parser')
         
